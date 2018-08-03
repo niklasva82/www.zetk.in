@@ -4,7 +4,7 @@ import immutable from 'immutable';
 import * as types from '../actions';
 
 
-// Selector to get actionList filtered by campaign and optionally a set of activities
+// Selector to get actionList filtered by campaign
 export const campaignActionList = (state, campaignId) => {
     let list = state.getIn(['actions', 'actionList']);
 
@@ -12,36 +12,10 @@ export const campaignActionList = (state, campaignId) => {
     if (!list.get('items')) {
         return list;
     }
-    if(!activities) {
-        activities = immutable.Set([1]);
-    }
 
     return list
         .updateIn(['items'], items => items
-	  .filter(item => item.getIn(['campaign', 'id']) == campaignId));
-  //	  .filter(item => {
-  //		  return !activities 
-  //			  || 
-  //			  activities.has( item.getIn(['activity', 'id']) )
-  //	  }));
-};
-
-// Selector to get actionList filtered by a set of activities
-export const activityActionList = (state, activities) => {
-    let list = state.getIn(['actions', 'actionList']);
-
-    // No need to filter empty list
-    if (!list.get('items')) {
-        return list;
-    }
-    if(!activities) {
-        activities = immutable.Set([1]);
-    }
-
-    return list
-        .updateIn(['items'], items => items
-	  .filter(item => {
-		  return activities.has( item.getIn(['activity', 'id']) ) }));
+        .filter(item => item.getIn(['campaign', 'id']) == campaignId));
 };
 
 const initialState = immutable.fromJS({
