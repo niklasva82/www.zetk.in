@@ -4,7 +4,7 @@ import immutable from 'immutable';
 import * as types from '../actions';
 
 
-// Selector to get actionList filtered by campaign
+// Selector to get actionList filtered by campaign and optionally a set of activities
 export const campaignActionList = (state, campaignId) => {
     let list = state.getIn(['actions', 'actionList']);
 
@@ -12,10 +12,36 @@ export const campaignActionList = (state, campaignId) => {
     if (!list.get('items')) {
         return list;
     }
+    if(!activities) {
+        activities = immutable.Set([1]);
+    }
 
     return list
         .updateIn(['items'], items => items
-            .filter(item => item.getIn(['campaign', 'id']) == campaignId));
+	  .filter(item => item.getIn(['campaign', 'id']) == campaignId));
+  //	  .filter(item => {
+  //		  return !activities 
+  //			  || 
+  //			  activities.has( item.getIn(['activity', 'id']) )
+  //	  }));
+};
+
+// Selector to get actionList filtered by a set of activities
+export const activityActionList = (state, activities) => {
+    let list = state.getIn(['actions', 'actionList']);
+
+    // No need to filter empty list
+    if (!list.get('items')) {
+        return list;
+    }
+    if(!activities) {
+        activities = immutable.Set([1]);
+    }
+
+    return list
+        .updateIn(['items'], items => items
+	  .filter(item => {
+		  return activities.has( item.getIn(['activity', 'id']) ) }));
 };
 
 const initialState = immutable.fromJS({
@@ -35,6 +61,11 @@ const initialState = immutable.fromJS({
         error: null,
         items: null,
     },
+    activityList: {
+        isPending: false,
+        error: null,
+        items: null,
+    },
 });
 
 export default createReducer(initialState, {
@@ -49,12 +80,26 @@ export default createReducer(initialState, {
         action.payload.data.data.forEach(obj =>
             actions[obj.id] = obj);
 
+        let activities = new Map();
+        action.payload.data.data.forEach(res => {
+            res.forEach(obj =>
+                activities.set(obj.activity.id, obj.activity)
+            );
+        });
+        let activityList = [];
+        activities.forEach((activity, id) => {
+            activityList.push(activity)
+        });
+
         return state
             .setIn(['userActionList', 'error'], null)
             .setIn(['userActionList', 'isPending'], false)
             .updateIn(['userActionList', 'items'], items => items?
                 items.merge(immutable.fromJS(actions)) :
-                immutable.fromJS(actions));
+                immutable.fromJS(actions))
+            .setIn(['activityList', 'error'], null)
+            .setIn(['activityList', 'isPending'], false)
+            .setIn(['activityList', 'items'], activityList);
     },
 
     [types.RETRIEVE_USER_ACTIONS + '_REJECTED']: (state, action) => {
@@ -79,12 +124,26 @@ export default createReducer(initialState, {
                 }));
         });
 
+        let activities = new Map();
+        action.payload.forEach(res => {
+            res.data.data.forEach(obj =>
+                activities.set(obj.activity.id, obj.activity)
+            );
+        });
+        let activityList = [];
+        activities.forEach((activity, id) => {
+            activityList.push(activity)
+        });
+
         return state
             .setIn(['actionList', 'error'], null)
             .setIn(['actionList', 'isPending'], false)
             .updateIn(['actionList', 'items'], items => items?
                 items.merge(immutable.fromJS(actions)) :
-                immutable.fromJS(actions));
+                immutable.fromJS(actions))
+            .setIn(['activityList', 'error'], null)
+            .setIn(['activityList', 'isPending'], false)
+            .setIn(['activityList', 'items'], activityList);
     },
 
     [types.RETRIEVE_CAMPAIGN_ACTIONS + '_PENDING']: (state, action) => {
@@ -101,13 +160,26 @@ export default createReducer(initialState, {
             actions[obj.id] = Object.assign(obj, {
                 org_id: action.meta.orgId.toString(),
             }));
+        let activities = new Map();
+        action.payload.forEach(res => {
+            res.data.data.forEach(obj =>
+                activities.set(obj.activity.id, obj.activity)
+            );
+        });
+        let activityList = [];
+        activities.forEach((activity, id) => {
+            activityList.push(activity)
+        });
 
         return state
             .setIn(['actionList', 'error'], null)
             .setIn(['actionList', 'isPending'], false)
             .updateIn(['actionList', 'items'], items => items?
                 items.merge(immutable.fromJS(actions)) :
-                immutable.fromJS(actions));
+                immutable.fromJS(actions))
+            .setIn(['activityList', 'error'], null)
+            .setIn(['activityList', 'isPending'], false)
+            .setIn(['activityList', 'items'], activityList);
     },
 
     [types.RETRIEVE_USER_RESPONSES + '_PENDING']: (state, action) => {

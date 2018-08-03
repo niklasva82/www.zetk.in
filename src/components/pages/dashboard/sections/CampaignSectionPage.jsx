@@ -20,6 +20,7 @@ const mapStateToProps = state => ({
     orgList: state.getIn(['orgs', 'orgList']),
     campaignList: state.getIn(['campaigns', 'campaignList']),
     actionList: state.getIn(['actions', 'actionList']),
+    activityList: state.getIn(['actions', 'activityList']),
     responseList: state.getIn(['actions', 'responseList']),
     userActionList: state.getIn(['actions', 'userActionList']),
 });
@@ -47,6 +48,7 @@ export default class CampaignSectionPage extends SectionPage {
     renderSectionContent(data) {
         let actionList = this.props.userActionList;
         let campaignList = this.props.campaignList;
+        let activityList = this.props.activityList;
 
         let selectedTab = this.state.selectedTab;
         let tabs = {
@@ -107,6 +109,7 @@ export default class CampaignSectionPage extends SectionPage {
                 orgList={ this.props.orgList.get('items') }
                 redirPath={ this.props.redirPath }
                 actionList={ scopedActionList }
+                activityList={ activityList }
                 responseList={ this.props.responseList }
                 userActionList={ this.props.userActionList }
                 onResponse={ this.onResponse.bind(this) }

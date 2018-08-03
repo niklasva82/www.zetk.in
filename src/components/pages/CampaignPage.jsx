@@ -36,6 +36,7 @@ const mapStateToProps = (state, props) => {
         isConnected: isConnected,
         orgList: state.getIn(['orgs', 'orgList']),
         actionList: campaignActionList(state, props.params.campaignId),
+        activityList: state.getIn(['actions', 'activityList']),
         responseList: state.getIn(['actions', 'responseList']),
         userActionList: state.getIn(['actions', 'userActionList']),
     };
@@ -151,6 +152,7 @@ export default class CampaignPage extends React.Component {
                     orgList={ this.props.orgList.get('items') }
                     // TODO: Don't use full action list
                     actionList={ this.props.actionList }
+                    activityList={ this.props.activityList }
                     responseList={ responseList }
                     userActionList={ userActionList }
                     needFilterEnabled={ true }
